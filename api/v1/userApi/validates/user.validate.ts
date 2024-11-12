@@ -35,3 +35,35 @@ export const login = async (req: Request | any, res: Response, next: NextFunctio
 
     next()
 }
+
+export const register = async (req: Request | any, res: Response, next: NextFunction) => {
+    const { fullName, email, password } = req.body;
+
+    if(!fullName || !email || !password) {
+        res.json({
+            code: 400,
+            message: "Please provide full of information"
+        })
+    } else {
+        const userExist = await User.findOne({
+            email: email,
+            deleted: false,
+            status: "active"
+        })
+
+        if(userExist) {
+            res.json({
+                code: 400,
+                message: "Email already registered"
+            })
+        } else {
+            req.userRegister =  {
+                fullName: fullName,
+                email: email,
+                password: md5(password)
+            }
+        }
+    }
+
+    next()
+}
