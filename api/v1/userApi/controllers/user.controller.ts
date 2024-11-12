@@ -45,3 +45,24 @@ export const register = async (req: Request | any, res: Response) => {
         })
     }
 }
+
+// [GET] /api/v1/user/detail
+export const detail = (req: Request | any, res: Response) => {
+    if(req.user) {
+        const user = {
+            fullName: req.user.fullName,
+            email: req.user.email,
+            token: req.user.token
+        }
+
+        res.json({
+            code: 200,
+            data: user
+        })
+    } else {
+        res.json({
+            code: 400,
+            message: "Invalid token"
+        })
+    }
+}

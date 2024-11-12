@@ -3,8 +3,9 @@ const router: Router = Router();
 
 import * as controller from '../controllers/user.controller'
 import * as validate from '../validates/user.validate'
+import * as middleware from "../middlewares/auth.middleware";
 
-// router.get('/detail', controller.detail)
+router.get('/detail', middleware.Auth, controller.detail)
 
 router.post('/login', validate.login, controller.login)
 
