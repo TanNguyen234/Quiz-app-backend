@@ -50,6 +50,7 @@ export const register = async (req: Request | any, res: Response) => {
 export const detail = (req: Request | any, res: Response) => {
     if(req.user) {
         const user = {
+            id: req.user.id,
             fullName: req.user.fullName,
             email: req.user.email,
             token: req.user.token

@@ -20,6 +20,7 @@ export const login = async (req: Request | any, res: Response, next: NextFunctio
 
         if(user) {
             const userInfo = {
+                id: user.id,
                 fullName: user.fullName,
                 token: user.token
             }

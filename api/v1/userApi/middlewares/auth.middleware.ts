@@ -10,8 +10,9 @@ export const Auth = async (req: Request | any, res: Response, next: NextFunction
             status: 'active',
             deleted: false
            }).select('-password')
-           req.user = user
            
+           req.user = user
+
         } catch (err) {
             res.json({
                 code: 400,
