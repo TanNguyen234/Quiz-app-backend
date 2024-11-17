@@ -45,6 +45,7 @@ export const register = async (req: Request | any, res: Response, next: NextFunc
             code: 400,
             message: "Please provide full of information"
         })
+        return;
     } else {
         const userExist = await User.findOne({
             email: email,
@@ -57,6 +58,7 @@ export const register = async (req: Request | any, res: Response, next: NextFunc
                 code: 400,
                 message: "Email already registered"
             })
+            return;
         } else {
             req.userRegister =  {
                 fullName: fullName,

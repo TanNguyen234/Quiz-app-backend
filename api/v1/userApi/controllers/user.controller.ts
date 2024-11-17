@@ -3,7 +3,7 @@ import User from "../models/user.model";
 import { generateRandomString } from "../../../../helpers/generate";
 
 //[POST] /api/v1/user/login
-export const login = (req: Request | any, res: Response) => {
+export const login = (req: Request | any, res: Response): void => {
     if(req.user) {
         res.json({
             code: 200,
@@ -12,13 +12,13 @@ export const login = (req: Request | any, res: Response) => {
     } else {
         res.json({
             code: 400,
-            messsage: "Invalid email or password"
+            message: "Invalid email or password"
         })
     }
 }
 
 //[POST] /api/v1/user/register
-export const register = async (req: Request | any, res: Response) => {
+export const register = async (req: Request | any, res: Response): Promise<void> => {
     const userSave = req.userRegister
     if(userSave) {
         userSave.token = generateRandomString(30);
@@ -28,26 +28,30 @@ export const register = async (req: Request | any, res: Response) => {
             res.json({
                 code: 200,
                 data: {
+                    id: user.id,
                     fullName: user.fullName,
                     token: user.token
                 }
             })
+            return;
         } catch (error) {
             res.json({
                 code: 500,
                 message: "Error saving user"
             })
+            return;
         }
-    } else {
+    } else {    
         res.json({
             code: 400,
-            messsage: "Invalid User's provided information"
+            message: "Invalid User's provided information"
         })
+        return;
     }
 }
 
 // [GET] /api/v1/user/detail
-export const detail = (req: Request | any, res: Response) => {
+export const detail = (req: Request | any, res: Response): void => {
     if(req.user) {
         const user = {
             id: req.user.id,
