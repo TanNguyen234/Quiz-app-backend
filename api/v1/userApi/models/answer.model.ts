@@ -6,7 +6,7 @@ const AnswerSchema = new Schema(
   {
     userId: String,
     topicId: String,
-    answers: Array,
+    answers: Object,
     status: {
       type: String,
       default: "active",
