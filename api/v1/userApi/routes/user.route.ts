@@ -7,6 +7,10 @@ import * as middleware from "../middlewares/auth.middleware";
 
 router.post('/password/otp', controller.otp)
 
+router.post('/password/checkOTP', controller.checkOTP)
+
+router.patch('/password/change', controller.change)
+
 router.get('/detail', middleware.Auth, controller.detail)
 
 router.post('/login', validate.login, controller.login)

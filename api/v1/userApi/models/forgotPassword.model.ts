@@ -7,7 +7,10 @@ const forgotPasswordSchema = new Schema({
     otp: String,
     expireAt: {
       type: Date,
-      expires: () => new Date(Date.now() + 180 * 1000)
+      expires: {
+        type: Date,
+        expires: 180 // TTL sau 180 giây (3 phút)
+    }
     }
 }, {timestamps: true});
 
