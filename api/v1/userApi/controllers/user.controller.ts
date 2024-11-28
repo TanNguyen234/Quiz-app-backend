@@ -5,6 +5,30 @@ import { generateRandomNumber, generateRandomString } from "../../../../helpers/
 import sendMail from "../../../../helpers/sendMail";
 import ForgotPassword from "../models/forgotPassword.model";
 
+//[GET] /api/v1/user
+export const index = async (req: Request, res: Response): Promise<void> => {
+    if(req.query.keyword) {
+        
+    } else {
+        try {
+            const users = await User.find({
+                deleted: false,
+                status: "active"
+            }).select("-email -password -token")
+
+            res.json({
+                code: 200,
+                data: users
+            })
+        } catch(err) {
+            res.json({
+                code: 400,
+                message: "user is not exist"
+            })
+        }
+    }
+}
+
 //[POST] /api/v1/user/login
 export const login = (req: Request | any, res: Response): void => {
     if(req.user) {
