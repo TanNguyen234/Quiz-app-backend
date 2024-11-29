@@ -1,12 +1,23 @@
 import mongoose from "mongoose";
+const slug = require('mongoose-slug-updater');
+mongoose.plugin(slug)
 
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
   fullName: String,
+  slug: {type: String, slug: "fullName"},
   email: String,
   password: String,
   token: String,
+  requestFriends: Array,
+  acceptFriends: Array,
+  friendList: [
+    {
+      user_id: String,
+      room_chat_id: String,
+    }
+  ],
   status: {
     type: String, 
     default: "active"
