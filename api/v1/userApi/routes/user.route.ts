@@ -5,8 +5,6 @@ import * as controller from '../controllers/user.controller'
 import * as validate from '../validates/user.validate'
 import * as middleware from "../middlewares/auth.middleware";
 
-router.get('/',  middleware.Auth, controller.index);
-
 router.post('/password/otp', controller.otp)
 
 router.post('/password/checkOTP', controller.checkOTP)
