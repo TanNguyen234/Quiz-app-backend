@@ -15,7 +15,9 @@ interface CustomRequest extends Request {
 export const index = async (req: CustomRequest, res: Response): Promise<void> => {
     const user = req.user as any;
     //Socket
+    usersSocket(req?.user)
     //Socket
+
     if(req.query.keyword) {
         const keyword = req.query.keyword as string;
         const slug = convertToSlug(keyword);
@@ -27,6 +29,11 @@ export const index = async (req: CustomRequest, res: Response): Promise<void> =>
                     { fullName: slugRegex },
                     { email: slugRegex },
                     { slug: slugRegex },
+                ],
+                $and: [
+                    { _id: { $ne: user.id } },
+                    { _id: { $nin: user.requestFriend } },
+                    { _id: { $nin: user.acceptFriend } },
                 ],
                 deleted: false,
                 status: "active",
@@ -52,8 +59,13 @@ export const index = async (req: CustomRequest, res: Response): Promise<void> =>
     } else {
         try {
             const users = await User.find({
+                $and: [
+                    { _id: { $ne: user.id } },
+                    { _id: { $nin: user.requestFriends } },
+                    { _id: { $nin: user.acceptFriends } },
+                ],
                 deleted: false,
-                status: "active"
+                status: "active",
             }).select("-email -password -token")
 
             res.json({
@@ -69,44 +81,52 @@ export const index = async (req: CustomRequest, res: Response): Promise<void> =>
     }
 }
 
-//[GET] /api/v1/users/acceptFriend
-export const accept = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { acceptFriend } = req.body
-        const user = await User.find({
-            _id: {$in: acceptFriend},
-            deleted: false,
-            status: 'active'
-        })
-        res.json({
-            code: 200,
-            data: user
-        })
-    } catch(error) {
+//[GET] /api/v1/users/inviteToFriend
+export const invite = async (req: CustomRequest, res: Response): Promise<void> => {
+    const type: any = req.query.type;
+    if(type === 'request'){
+        try {
+            const user  = req.user as any
+            const users = await User.find({
+                _id: { $in: user.requestFriends},
+                deleted: false,
+                status: 'active'
+            })
+    
+            res.json({
+                code: 200,
+                data: users
+            })
+        } catch(error) {
+            console.log(error)
+            res.json({
+                code: 400,
+                message: "Invalid"
+            })
+        }
+    } else if(type==='accept') {
+        try {
+            const user = req.user as any;
+            const users = await User.find({
+                _id: { $in: user.acceptFriends },
+                deleted: false,
+                status: 'active'
+            })
+            res.json({
+                code: 200,
+                data: users
+            })
+        } catch(error) {
+            console.log(error)
+            res.json({
+                code: 400,
+                message: "Invalid"
+            })
+        }
+    } else {
         res.json({
             code: 400,
-            message: "user is not exist"
-        })
-    }
-}
-
-//[GET] /api/v1/users/requestFriend
-export const request = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { requestFriend } = req.body
-        const user = await User.find({
-            _id: {$in: requestFriend},
-            deleted: false,
-            status: 'active'
-        })
-        res.json({
-            code: 200,
-            data: user
-        })
-    } catch(error) {
-        res.json({
-            code: 400,
-            message: "user is not exist"
+            message: "Invalid type"
         })
     }
 }
