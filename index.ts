@@ -1,10 +1,11 @@
-import express, {Express} from 'express';
+import express, {Express, request, Request} from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv'
 import userApiRoute from './api/v1/userApi/routes/index.route';
 import * as database from './config/database.config'
 import http from 'http'
 import { Server } from 'socket.io';
+import usersSocket from './api/v1/userApi/socket/client/users.socket';
 
 declare global {
     namespace NodeJS {
@@ -34,6 +35,7 @@ const io = new Server(server, {
     },
   });
 (global as any)._io = io;
+usersSocket()
 //End Socket
 
 //Kết nối database

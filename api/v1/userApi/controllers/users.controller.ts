@@ -14,10 +14,6 @@ interface CustomRequest extends Request {
 //[GET] /api/v1/users/not-friend
 export const index = async (req: CustomRequest, res: Response): Promise<void> => {
     const user = req.user as any;
-    //Socket
-    usersSocket(req?.user)
-    //Socket
-
     if(req.query.keyword) {
         const keyword = req.query.keyword as string;
         const slug = convertToSlug(keyword);
@@ -94,7 +90,7 @@ export const invite = async (req: CustomRequest, res: Response): Promise<void> =
             })
     
             res.json({
-                code: 200,
+                code: 200,  
                 data: users
             })
         } catch(error) {
