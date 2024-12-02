@@ -14,6 +14,9 @@ interface CustomRequest extends Request {
 //[GET] /api/v1/users/not-friend
 export const index = async (req: CustomRequest, res: Response): Promise<void> => {
     const user = req.user as any;
+    //Socket
+    usersSocket(user)
+    //End Socket
     if(req.query.keyword) {
         const keyword = req.query.keyword as string;
         const slug = convertToSlug(keyword);
@@ -80,9 +83,12 @@ export const index = async (req: CustomRequest, res: Response): Promise<void> =>
 //[GET] /api/v1/users/inviteToFriend
 export const invite = async (req: CustomRequest, res: Response): Promise<void> => {
     const type: any = req.query.type;
+    const user = req.user as any
+    //Socket
+    usersSocket(user)
+    //End Socket
     if(type === 'request'){
         try {
-            const user  = req.user as any
             const users = await User.find({
                 _id: { $in: user.requestFriends},
                 deleted: false,

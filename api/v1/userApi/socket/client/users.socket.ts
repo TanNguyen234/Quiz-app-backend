@@ -1,55 +1,34 @@
 import { Socket } from "socket.io"
 import User from "../../models/user.model";
-import { request } from "express";
 
-const usersSocket = async (): Promise<void> => {
-    const req: any = request
+const usersSocket = async (user: any): Promise<void> => {
     const io = (global as any)._io;
-    io.on('connection', (socket: Socket) => {
+    io.once('connection', (socket: Socket) => {
         console.log("New client connected:", socket.id);
+        console.log('Listener count for CLIENT_ADD_FRIEND:', socket.listenerCount('CLIENT_ADD_FRIEND'));
         try {
-            const { id } = req?.user
-            socket.on('CLIENT_ADD_FRIEND', async (userId) => {
-                console.log('CLIENT_ADD_FRIEND')
-                //Thêm id của người gửi vào acceptFriend của B
-                const existinB = await User.findOne({
-                    _id: userId,
-                    acceptFriends: [id]
-                })
-                if(!existinB) {
+            const { id } = user
+            if (socket.listenerCount('CLIENT_ADD_FRIEND') === 0) {
+                socket.on('CLIENT_ADD_FRIEND', async (userId) => {
+                    console.log('CLIENT_ADD_FRIEND')
+                    //Thêm id của người gửi vào acceptFriend của B
                     await User.updateOne({
                         _id: userId
                     },{
-                        $push: {
-                            acceptFriends: id
-                        }
+                        $addToSet: { acceptFriends: id }
                     })
-                }
-                //Thêm id của người gửi vào requestFriends của người gửi(A)
-                const existinA = await User.findOne({
-                    _id: id,
-                    requestFriends: [userId]
-                })
-                if(!existinA) {
+                    //Thêm id của người gửi vào requestFriends của người gửi(A)
                     await User.updateOne({
                         _id: id
                     },{
-                        $push: {
-                            requestFriends: userId
-                        }
-                    }
-                )
-                }
-            })
-            socket.on('CLIENT_CANCEL_FRIEND', async (userId) => {
-                //Xóa id của người gửi trong acceptFriend của B
-                console.log('CLIENT_CANCEL_FRIEND')
-                const existinB = await User.findOne({
-                    _id: userId,
-                    acceptFriends: [id]
+                        $addToSet: { requestFriends: userId }
+                    })
                 })
-                console.log(existinB)
-                if(existinB) {
+            }
+            if (socket.listenerCount('CLIENT_CANCEL_FRIEND') === 0) {
+                socket.on('CLIENT_CANCEL_FRIEND', async (userId) => {
+                    //Xóa id của người gửi trong acceptFriend của B
+                    console.log('CLIENT_CANCEL_FRIEND')
                     await User.updateOne({
                         _id: userId
                     },{
@@ -57,27 +36,19 @@ const usersSocket = async (): Promise<void> => {
                             acceptFriends: id
                         }
                     })
-                }
-                //Xóa id của người gửi trong requestFriends của người gửi(A)
-                const existinA = await User.findOne({
-                    _id: id,
-                    requestFriends: [userId]
-                })
-                console.log(existinA)
-                if(existinA) {
+                    //Xóa id của người gửi trong requestFriends của người gửi(A)
                     await User.updateOne({
                         _id: id
                     },{
                         $pull: {
                             requestFriends: userId
                         }
-                    }
-                )
-                }
-            })
+                    })
+                })
+            }
     
         } catch (error) {
-            
+            console.log("error: ", error)
         }
 
         socket.on("disconnect", () => {
