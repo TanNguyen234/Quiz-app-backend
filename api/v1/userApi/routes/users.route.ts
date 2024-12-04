@@ -8,4 +8,6 @@ router.get('/not-friend',  middleware.Auth, controller.index);
 
 router.get('/inviteToFriend',  middleware.Auth, controller.invite);
 
+router.get('/friends',  middleware.Auth, controller.friend);
+
 export const usersRoutes: Router = router;

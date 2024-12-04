@@ -1,37 +1,46 @@
 import { Socket } from "socket.io"
-import { handleAcceptFriend, handleAddFriend, handleCancelRequest, handleDenyFriend } from "./function.socket";
+import { handleAcceptFriend, handleAddFriend, handleCancelRequest, handleDeleteFriend, handleDenyFriend } from "./function.socket";
 
 const usersSocket = async (user: any): Promise<void> => {
     const io = (global as any)._io;
     io.once('connection', (socket: Socket) => {
         console.log("New client connected:", socket.id);
-        console.log('Listener count for CLIENT_ADD_FRIEND:', socket.listenerCount('CLIENT_ADD_FRIEND'));
         try {
             const { id } = user
-            if (socket.listenerCount('CLIENT_ADD_FRIEND') === 0) {
-                socket.on('CLIENT_ADD_FRIEND', async (userId) => {
-                    console.log('CLIENT_ADD_FRIEND')
-                    await handleAddFriend(id, userId)
-                })
-            }
-            if (socket.listenerCount('CLIENT_CANCEL_FRIEND') === 0) {
-                socket.on('CLIENT_CANCEL_FRIEND', async (userId) => {
-                    console.log('CLIENT_CANCEL_FRIEND')
-                    await handleCancelRequest(id, userId)
-                })
-            }
-            if (socket.listenerCount('CLIENT_DENY_FRIEND') === 0) {
-                socket.on('CLIENT_DENY_FRIEND', async (userId) => {
-                    console.log('CLIENT_DENY_FRIEND')
-                    await handleDenyFriend(id, userId)
-                })
-            }
-            if (socket.listenerCount('CLIENT_ACCEPT_FRIEND') === 0) {
-                socket.on('CLIENT_ACCEPT_FRIEND', async (userId) => {
-                    console.log('CLIENT_ACCEPT_FRIEND')
-                    await handleAcceptFriend(id, userId)
-                })
-            }
+            //CLIENT_ADD_FRIEND
+            socket.removeAllListeners("CLIENT_ADD_FRIEND");
+            socket.on('CLIENT_ADD_FRIEND', async (userId) => {
+                console.log('CLIENT_ADD_FRIEND')
+                await handleAddFriend(id, userId)
+            })
+
+            //CLIENT_CANCEL_FRIEND
+            socket.removeAllListeners("CLIENT_CANCEL_FRIEND");
+            socket.on('CLIENT_CANCEL_FRIEND', async (userId) => {
+                console.log('CLIENT_CANCEL_FRIEND')
+                await handleCancelRequest(id, userId)
+            })
+
+            //CLIENT_DENY_FRIEND
+            socket.removeAllListeners("CLIENT_DENY_FRIEND");
+            socket.on('CLIENT_DENY_FRIEND', async (userId) => {
+                console.log('CLIENT_DENY_FRIEND')
+                await handleDenyFriend(id, userId)
+            })
+
+            //CLIENT_ACCEPT_FRIEND
+            socket.removeAllListeners("CLIENT_ACCEPT_FRIEND");
+            socket.on('CLIENT_ACCEPT_FRIEND', async (userId) => {
+                console.log('CLIENT_ACCEPT_FRIEND')
+                await handleAcceptFriend(id, userId)
+            })
+            
+             //CLIENT_DELETE_FRIEND
+             socket.removeAllListeners("CLIENT_DELETE_FRIEND");
+             socket.on('CLIENT_DELETE_FRIEND', async (userId) => {
+                 console.log('CLIENT_DELETE_FRIEND')
+                 await handleDeleteFriend(id, userId)
+             })
         } catch (error) {
             console.log("error: ", error)
         }
@@ -42,6 +51,7 @@ const usersSocket = async (user: any): Promise<void> => {
             socket.removeAllListeners('CLIENT_CANCEL_FRIEND')
             socket.removeAllListeners('CLIENT_DENY_FRIEND')
             socket.removeAllListeners('CLIENT_ACCEPT_FRIEND')
+            socket.removeAllListeners('CLIENT_DELETE_FRIEND')
         });
 
         socket.on("connect_error", (err) => {

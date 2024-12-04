@@ -132,3 +132,31 @@ export const invite = async (req: CustomRequest, res: Response): Promise<void> =
         })
     }
 }
+
+//[GET] /api/v1/users/friends
+export const friend = async (req: CustomRequest, res: Response): Promise<void> => {
+    const user = req.user as any
+    const friends = user.friendList.map((item: any) => item.user_id)
+    console.log(friends)
+    //Socket
+    usersSocket(user)
+    //End Socket
+    try {
+        const users = await User.find({
+            _id: { $in: friends },
+            deleted: false,
+            status: 'active'
+        })
+
+        res.json({
+            code: 200,  
+            data: users
+        })
+    } catch(error) {
+        console.log(error)
+        res.json({
+            code: 400,
+            message: "Invalid"
+        })
+    }
+}
