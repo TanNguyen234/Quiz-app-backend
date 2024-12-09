@@ -5,13 +5,21 @@ import { userRoutes } from './user.route';
 import { answerRoutes } from './answer.route';
 import { usersRoutes } from './users.route';
 
+import * as middleware from '../middlewares/auth.middleware';
+import { chatRoutes } from './chat.route';
+
 const userApiRoute = (app: Express): void =>{
     const version: String = '/api/v1';
+
     app.use(version + '/topics', topicRoutes)
     app.use(version + '/questions', questionRoutes)
-    app.use(version + '/user', userRoutes)
     app.use(version + '/answers', answerRoutes)
+
+    app.use(version + '/user', userRoutes)
+
     app.use(version + '/users', usersRoutes)
+
+    app.use(version + '/chat', middleware.Auth , chatRoutes)
 }
 
 export default userApiRoute;
