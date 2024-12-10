@@ -10,6 +10,13 @@ interface CustomRequest extends Request {
     };
 }
 
+interface Chat {      
+    user_id: string,
+    content: string,
+    images?: string,
+    fullName?: string
+}
+
 //[GET] /chat
 export const index = async (req: CustomRequest, res: Response): Promise<void> => {
     const user = req.user as any
@@ -21,15 +28,25 @@ export const index = async (req: CustomRequest, res: Response): Promise<void> =>
             deleted: false
         })
 
-        for (let chat of chats) {
-            var chatBlock: any = chat
+        const updatedChats = await Promise.all(
+            chats.map(async (chat) => {
+                const infoUser = await User.findOne({
+                    _id: chat.user_id
+                }).select('fullName')
 
-            const infoUser = await User.findOne({
-                _id: chatBlock.user_id
-            }).select('fullName')
-    
-            chatBlock.infoUser = infoUser
-        }
+                if(infoUser) {
+                    return {
+                        ...chat,
+                        fullName: infoUser.fullName
+                    }
+                } else {
+                    return {
+                        ...chat,
+                        fullName: ''
+                    }
+                }
+            }) 
+        )
 
         if(!chats) {
             throw new Error('No chat')
@@ -37,7 +54,7 @@ export const index = async (req: CustomRequest, res: Response): Promise<void> =>
 
         res.json({
             code: 200,
-            chats: chats
+            data: updatedChats
         })
     } catch (error) {
         res.json({
