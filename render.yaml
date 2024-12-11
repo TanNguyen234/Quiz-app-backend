@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: quiz-api
+    env: node
+    buildCommand: "npm install"
+    startCommand: "node dist/index.js"
+    envVars:
+      - key: PORT
+        value: "3002"
+      - key: MONGO_URL
+        value: "mongodb+srv://tanntd2005:yahwidnxb1@product-management.tykkszw.mongodb.net/Quizz-app"
+      - key: CLOUD_NAME
+        value: "dcsfmhzuu"
+      - key: CLOUD_KEY
+        value: "727797117163789"
+      - key: CLOUD_SECRET
+        value: "KHhuPBYLa9RX-t6FbGMSnL4e0MA"
+      - key: EMAIL_USER
+        value: "tanntd.2005@gmail.com"
+      - key: EMAIL_PASS
+        value: "pbxr biuc zhlc ewup"
+    autoDeploy: true
