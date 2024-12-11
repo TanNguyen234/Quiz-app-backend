@@ -8,4 +8,6 @@
         "forceConsistentCasingInFileNames": true,
         "esModuleInterop": true,
     },
+    "include": ["*.ts"], // Bao gồm tất cả các file TypeScript (.ts) trong thư mục gốc
+    "exclude": ["node_modules"] // Không biên dịch các file trong thư mục node_modules
 }   
