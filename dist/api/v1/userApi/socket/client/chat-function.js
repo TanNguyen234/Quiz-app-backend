@@ -16,11 +16,13 @@ exports.handleSendMessage = void 0;
 const chat_model_1 = __importDefault(require("../../models/chat.model"));
 const io = global._io;
 const handleSendMessage = (id, fullName, content) => __awaiter(void 0, void 0, void 0, function* () {
-    const chat = new chat_model_1.default({
-        user_id: id,
-        content: content
-    });
-    yield chat.save();
+    if (content.message) {
+        const chat = new chat_model_1.default({
+            user_id: id,
+            content: content.message
+        });
+        yield chat.save();
+    }
     return {
         user_id: id,
         fullName: fullName,

@@ -25,7 +25,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }))
 
 //SocketIO
-const pathFrontend = 'http://localhost:3000'
+const pathFrontend = process.env.PATH_FRONTEND
+
 const server: any = http.createServer(app);
 const io = new Server(server, {
     cors: {

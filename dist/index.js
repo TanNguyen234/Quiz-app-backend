@@ -39,7 +39,7 @@ const port = process.env.PORT || 3002;
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
-const pathFrontend = 'http://localhost:3000';
+const pathFrontend = process.env.PATH_FRONTEND;
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
     cors: {
