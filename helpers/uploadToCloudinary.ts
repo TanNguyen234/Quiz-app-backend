@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
-import * as fs from 'fs';
+import * as stream from "stream";
 dotenv.config();
 
 //Cloudinary
@@ -16,11 +16,11 @@ let streamUpload = (buffer: any, mimetype: string) => {
     // Xác định resource_type dựa vào mimetype
     let resourceType: 'image' | 'video' | 'raw' | 'auto' = 'image';
 
-    if (mimetype.startsWith('audio/') || mimetype.startsWith('video/')) {
-      resourceType = 'video'; // Nếu là âm thanh hoặc video
-    }
+    // Tạo một PassThrough stream để xử lý buffer
+    const passthrough = new stream.PassThrough();
+    passthrough.end(buffer);
 
-    let stream = cloudinary.uploader.upload_stream({
+    let uploadStream = cloudinary.uploader.upload_stream({
       resource_type: resourceType
     },(error, result) => {
       if (result) {
@@ -30,7 +30,7 @@ let streamUpload = (buffer: any, mimetype: string) => {
       }
     });
 
-    fs.createReadStream(buffer).pipe(stream as any);
+    passthrough.pipe(uploadStream);
   });
 };
 

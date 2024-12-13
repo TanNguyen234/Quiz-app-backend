@@ -1,4 +1,5 @@
 import Chat from "../../models/chat.model";
+import * as uploadToCloudinary from '../../../../../helpers/uploadToCloudinary'
 
 const io = (global as any)._io;
 
@@ -7,22 +8,48 @@ interface content {
     file: any;
     files: any;
 }
+interface Chat {
+    user_id: string,
+    content?: string,
+    images?: String[]
+}
 export const handleSendMessage = async (
   id: string,
   fullName: string,
   content: content
 ) => {
-    if(content.message) {
-        const chat = new Chat({
-            user_id: id,
-            content: content.message
-        });
-        await chat.save();
+    let saveObj: Chat = {
+        user_id: id
     }
 
+    if(content.files) {
+        let images = []
+        for (const imageBuffer of content.files) {
+            const { type, originFileObj } = imageBuffer
+            const link: String = await uploadToCloudinary.uploadToCloudinary(originFileObj, type)
+            images.push(link)
+        }
+        saveObj["images"] = images
+    }
+
+    if(content.file) {
+        let images = []
+        const { type, originFileObj } = content.file
+        const link: String = await uploadToCloudinary.uploadToCloudinary(originFileObj, type)
+        images.push(link)
+        saveObj["images"] = images
+    }
+
+    if(content.message) {
+        saveObj["content"] = content.message;
+    }
+
+    const chat = new Chat(saveObj);
+    await chat.save();
+    console.log(chat)
+
     return {
-        user_id: id,
-        fullName: fullName,
-        content: content
+        ...saveObj,
+        fullName
     }
 };

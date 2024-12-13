@@ -35,36 +35,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleSendMessage = void 0;
-const chat_model_1 = __importDefault(require("../../models/chat.model"));
-const uploadToCloudinary = __importStar(require("../../../../../helpers/uploadToCloudinary"));
-const io = global._io;
-const handleSendMessage = (id, fullName, content) => __awaiter(void 0, void 0, void 0, function* () {
-    let saveObj = {
-        user_id: id
-    };
-    if (content.files) {
-        let images = [];
-        for (const imageBuffer of content.files) {
-            const { type, originFileObj } = imageBuffer;
-            const link = yield uploadToCloudinary.uploadToCloudinary(originFileObj, type);
-            images.push(link);
-        }
-        saveObj["images"] = images;
-    }
-    if (content.file) {
-        let images = [];
-        const { type, originFileObj } = content.file;
-        const link = yield uploadToCloudinary.uploadToCloudinary(originFileObj, type);
-        images.push(link);
-        saveObj["images"] = images;
-    }
-    if (content.message) {
-        saveObj["content"] = content.message;
-    }
-    const chat = new chat_model_1.default(saveObj);
-    yield chat.save();
-    console.log(chat);
-    return Object.assign(Object.assign({}, saveObj), { fullName });
+exports.uploadToCloudinary = void 0;
+const cloudinary_1 = require("cloudinary");
+const dotenv_1 = __importDefault(require("dotenv"));
+const stream = __importStar(require("stream"));
+dotenv_1.default.config();
+cloudinary_1.v2.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_KEY,
+    api_secret: process.env.CLOUD_SECRET,
 });
-exports.handleSendMessage = handleSendMessage;
+let streamUpload = (buffer, mimetype) => {
+    return new Promise((resolve, reject) => {
+        let resourceType = 'image';
+        const passthrough = new stream.PassThrough();
+        passthrough.end(buffer);
+        let uploadStream = cloudinary_1.v2.uploader.upload_stream({
+            resource_type: resourceType
+        }, (error, result) => {
+            if (result) {
+                resolve(result);
+            }
+            else {
+                reject(error);
+            }
+        });
+        passthrough.pipe(uploadStream);
+    });
+};
+const uploadToCloudinary = (buffer, mimetype) => __awaiter(void 0, void 0, void 0, function* () {
+    let result = yield streamUpload(buffer, mimetype);
+    return result.secure_url;
+});
+exports.uploadToCloudinary = uploadToCloudinary;
