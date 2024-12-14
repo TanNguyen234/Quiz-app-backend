@@ -17,4 +17,6 @@ router.post('/login', validate.login, controller.login)
 
 router.post('/register', validate.register, controller.register)
 
+router.get('/logout', middleware.Auth, controller.logout)
+
 export const userRoutes: Router = router;

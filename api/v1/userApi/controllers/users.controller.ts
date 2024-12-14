@@ -93,7 +93,7 @@ export const invite = async (req: CustomRequest, res: Response): Promise<void> =
                 _id: { $in: user.requestFriends},
                 deleted: false,
                 status: 'active'
-            })
+            }).select('-email -password -token')
     
             res.json({
                 code: 200,  
@@ -113,7 +113,8 @@ export const invite = async (req: CustomRequest, res: Response): Promise<void> =
                 _id: { $in: user.acceptFriends },
                 deleted: false,
                 status: 'active'
-            })
+            }).select('-email -password -token')
+
             res.json({
                 code: 200,
                 data: users
@@ -137,7 +138,6 @@ export const invite = async (req: CustomRequest, res: Response): Promise<void> =
 export const friend = async (req: CustomRequest, res: Response): Promise<void> => {
     const user = req.user as any
     const friends = user.friendList.map((item: any) => item.user_id)
-    console.log(friends)
     //Socket
     usersSocket(user)
     //End Socket
@@ -146,7 +146,7 @@ export const friend = async (req: CustomRequest, res: Response): Promise<void> =
             _id: { $in: friends },
             deleted: false,
             status: 'active'
-        })
+        }).select('-email -password -token')
 
         res.json({
             code: 200,  

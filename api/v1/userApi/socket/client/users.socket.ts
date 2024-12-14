@@ -4,9 +4,13 @@ import { handleAcceptFriend, handleAddFriend, handleCancelRequest, handleDeleteF
 const usersSocket = async (user: any): Promise<void> => {
     const io = (global as any)._io;
     io.once('connection', (socket: Socket) => {
-        console.log("New client connected:", socket.id);
+        const { id } = user
         try {
-            const { id } = user
+            socket.broadcast.emit('SERVER_RETURN_USER_STATUS_ONLINE', {
+                userId: id,
+                status: 'online'
+             });
+            console.log("SERVER_RETURN_USER_STATUS_ONLINE online", socket.id)
             //CLIENT_ADD_FRIEND
             socket.removeAllListeners("CLIENT_ADD_FRIEND");
             socket.on('CLIENT_ADD_FRIEND', async (userId) => {
@@ -46,7 +50,11 @@ const usersSocket = async (user: any): Promise<void> => {
         }
 
         socket.on("disconnect", () => {
-            console.log("Client disconnected:", socket.id);
+            console.log("SERVER_RETURN_USER_STATUS_ONLINE offline", socket.id)
+            socket.broadcast.emit('SERVER_RETURN_USER_STATUS_ONLINE', {
+                userId: id,
+                status: 'offline'
+             });
             socket.removeAllListeners('CLIENT_ADD_FRIEND')
             socket.removeAllListeners('CLIENT_CANCEL_FRIEND')
             socket.removeAllListeners('CLIENT_DENY_FRIEND')

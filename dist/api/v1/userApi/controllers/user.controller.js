@@ -12,12 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.change = exports.checkOTP = exports.otp = exports.detail = exports.register = exports.login = exports.index = void 0;
+exports.logout = exports.change = exports.checkOTP = exports.otp = exports.detail = exports.register = exports.login = exports.index = void 0;
 const md5_1 = __importDefault(require("md5"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const generate_1 = require("../../../../helpers/generate");
 const sendMail_1 = __importDefault(require("../../../../helpers/sendMail"));
 const forgotPassword_model_1 = __importDefault(require("../models/forgotPassword.model"));
+const users_socket_1 = __importDefault(require("../socket/client/users.socket"));
+const io = global._io;
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.query.keyword) {
     }
@@ -41,8 +43,14 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.index = index;
-const login = (req, res) => {
+const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.user) {
+        (0, users_socket_1.default)(req.user);
+        yield user_model_1.default.updateOne({
+            _id: req.user.id
+        }, {
+            statusOnline: 'online'
+        });
         res.json({
             code: 200,
             data: req.user
@@ -54,7 +62,7 @@ const login = (req, res) => {
             message: "Invalid email or password"
         });
     }
-};
+});
 exports.login = login;
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userSave = req.userRegister;
@@ -90,8 +98,14 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.register = register;
-const detail = (req, res) => {
+const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.user) {
+        (0, users_socket_1.default)(req.user);
+        yield user_model_1.default.updateOne({
+            _id: req.user.id
+        }, {
+            statusOnline: 'online'
+        });
         const user = {
             id: req.user.id,
             fullName: req.user.fullName,
@@ -109,7 +123,7 @@ const detail = (req, res) => {
             message: "Invalid token"
         });
     }
-};
+});
 exports.detail = detail;
 const otp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.body;
@@ -219,3 +233,14 @@ const change = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.change = change;
+const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.user) {
+        (0, users_socket_1.default)(req.user);
+        yield user_model_1.default.updateOne({
+            _id: req.user.id
+        }, {
+            statusOnline: 'offline'
+        });
+    }
+});
+exports.logout = logout;

@@ -35,4 +35,5 @@ router.patch('/password/change', controller.change);
 router.get('/detail', middleware.Auth, controller.detail);
 router.post('/login', validate.login, controller.login);
 router.post('/register', validate.register, controller.register);
+router.get('/logout', middleware.Auth, controller.logout);
 exports.userRoutes = router;

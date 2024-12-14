@@ -91,7 +91,7 @@ const invite = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 _id: { $in: user.requestFriends },
                 deleted: false,
                 status: 'active'
-            });
+            }).select('-email -password -token');
             res.json({
                 code: 200,
                 data: users
@@ -112,7 +112,7 @@ const invite = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 _id: { $in: user.acceptFriends },
                 deleted: false,
                 status: 'active'
-            });
+            }).select('-email -password -token');
             res.json({
                 code: 200,
                 data: users
@@ -137,14 +137,13 @@ exports.invite = invite;
 const friend = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     const friends = user.friendList.map((item) => item.user_id);
-    console.log(friends);
     (0, users_socket_1.default)(user);
     try {
         const users = yield user_model_1.default.find({
             _id: { $in: friends },
             deleted: false,
             status: 'active'
-        });
+        }).select('-email -password -token');
         res.json({
             code: 200,
             data: users

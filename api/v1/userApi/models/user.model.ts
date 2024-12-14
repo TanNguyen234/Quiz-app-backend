@@ -6,6 +6,7 @@ const { Schema } = mongoose;
 
 const userSchema = new Schema({
   fullName: String,
+  avatar: String,
   slug: {type: String, slug: "fullName"},
   email: String,
   password: String,
@@ -22,6 +23,7 @@ const userSchema = new Schema({
     type: String, 
     default: "active"
   },
+  statusOnline: String,
   deleted: {
     type: Boolean,
     default: false

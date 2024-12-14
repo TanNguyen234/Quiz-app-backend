@@ -4,6 +4,10 @@ import User from "../models/user.model";
 import { generateRandomNumber, generateRandomString } from "../../../../helpers/generate";
 import sendMail from "../../../../helpers/sendMail";
 import ForgotPassword from "../models/forgotPassword.model";
+import { Socket } from "socket.io";
+import usersSocket from "../socket/client/users.socket";
+
+const io = (global as any)._io;
 
 //[GET] /api/v1/user
 export const index = async (req: Request, res: Response): Promise<void> => {
@@ -30,8 +34,17 @@ export const index = async (req: Request, res: Response): Promise<void> => {
 }
 
 //[POST] /api/v1/user/login
-export const login = (req: Request | any, res: Response): void => {
+export const login = async (req: Request | any, res: Response): Promise<void> => {
     if(req.user) {
+        //Socket io
+        usersSocket(req.user)
+        //Socket io
+        await User.updateOne({
+            _id: req.user.id
+        },{
+            statusOnline: 'online'
+        })
+
         res.json({
             code: 200,
             data: req.user
@@ -78,8 +91,17 @@ export const register = async (req: Request | any, res: Response): Promise<void>
 }
 
 // [GET] /api/v1/user/detail
-export const detail = (req: Request | any, res: Response): void => {
+export const detail = async (req: Request | any, res: Response): Promise<void> => {
     if(req.user) {
+        //Socket io
+        usersSocket(req.user)
+        //Socket io
+        await User.updateOne({
+            _id: req.user.id
+        },{
+            statusOnline: 'online'
+        })
+
         const user = {
             id: req.user.id,
             fullName: req.user.fullName,
@@ -176,6 +198,7 @@ export const checkOTP = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+//[POST] /api/v1/user/password/change
 export const change = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
     if(!email ||!password) {
@@ -203,5 +226,18 @@ export const change = async (req: Request, res: Response): Promise<void> => {
                 message: "error"
             })
         }
+    }
+}
+//[GET] /api/v1/user/logout
+export const logout = async (req: Request | any, res: Response): Promise<void> => {
+    if(req.user) {
+        //Socket io
+        usersSocket(req.user)
+        //Socket io
+        await User.updateOne({
+            _id: req.user.id
+        },{
+            statusOnline: 'offline'
+        })
     }
 }
