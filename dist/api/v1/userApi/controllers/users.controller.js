@@ -136,18 +136,28 @@ const invite = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.invite = invite;
 const friend = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
-    const friends = user.friendList.map((item) => item.user_id);
+    const friendList = user.friendList;
+    const friends = friendList.map((item) => item.user_id);
     (0, users_socket_1.default)(user);
     try {
-        const users = yield user_model_1.default.find({
-            _id: { $in: friends },
-            deleted: false,
-            status: 'active'
-        }).select('-email -password -token');
-        res.json({
-            code: 200,
-            data: users
-        });
+        if (friendList.length > 0) {
+            const users = yield user_model_1.default.find({
+                _id: { $in: friends },
+                deleted: false,
+                status: 'active'
+            }).select('-email -password -token');
+            res.json({
+                code: 200,
+                data: users,
+                user
+            });
+        }
+        else {
+            res.json({
+                code: 400,
+                message: "None"
+            });
+        }
     }
     catch (error) {
         console.log(error);

@@ -1,4 +1,5 @@
 import User from "../../models/user.model";
+import RoomChat from '../../models/room-chat.model'
 
 export const handleAddFriend = async (
   id: string,
@@ -84,6 +85,24 @@ export const handleAcceptFriend = async (
   id: string,
   userId: string
 ): Promise<void> => {
+  //Tạo room chat
+  const dataRoom = {
+    typeRoom: "friend",
+    users: [
+      {
+        user_id: userId,
+        role: "superAdmin",
+      },
+      {
+        user_id: id,
+        role: "superAdmin",
+      },
+    ],
+  };
+  const roomChat = new RoomChat(dataRoom)
+  await roomChat.save()
+  //End Tạo room chat
+
   //Xóa id của người gửi trong acceptFriend của B
   const userBinA = await User.findOne({
     _id: userId,
@@ -101,7 +120,7 @@ export const handleAcceptFriend = async (
         $addToSet: {
           friendList: {
             user_id: id,
-            room_chat_id: "",
+            room_chat_id: roomChat.id,
           },
         },
       }
@@ -124,7 +143,7 @@ export const handleAcceptFriend = async (
         $addToSet: {
           friendList: {
             user_id: userId,
-            room_chat_id: "",
+            room_chat_id: roomChat.id,
           },
         },
       }

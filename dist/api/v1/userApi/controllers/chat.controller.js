@@ -18,9 +18,11 @@ const user_model_1 = __importDefault(require("../models/user.model"));
 const chat_socket_1 = __importDefault(require("../socket/client/chat.socket"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
+    const roomChatId = req.params.roomChatId;
     (0, chat_socket_1.default)(user);
     try {
         const chats = yield chat_model_1.default.find({
+            room_chat_id: roomChatId,
             deleted: false
         });
         const updatedChats = yield Promise.all(chats.map((chat) => __awaiter(void 0, void 0, void 0, function* () {

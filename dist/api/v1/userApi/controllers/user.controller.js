@@ -17,6 +17,7 @@ const md5_1 = __importDefault(require("md5"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const generate_1 = require("../../../../helpers/generate");
 const sendMail_1 = __importDefault(require("../../../../helpers/sendMail"));
+const updateStatusUser_1 = __importDefault(require("../../../../helpers/updateStatusUser"));
 const forgotPassword_model_1 = __importDefault(require("../models/forgotPassword.model"));
 const users_socket_1 = __importDefault(require("../socket/client/users.socket"));
 const io = global._io;
@@ -46,11 +47,7 @@ exports.index = index;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.user) {
         (0, users_socket_1.default)(req.user);
-        yield user_model_1.default.updateOne({
-            _id: req.user.id
-        }, {
-            statusOnline: 'online'
-        });
+        (0, updateStatusUser_1.default)(req.user.id, 'online');
         res.json({
             code: 200,
             data: req.user
@@ -101,11 +98,7 @@ exports.register = register;
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.user) {
         (0, users_socket_1.default)(req.user);
-        yield user_model_1.default.updateOne({
-            _id: req.user.id
-        }, {
-            statusOnline: 'online'
-        });
+        (0, updateStatusUser_1.default)(req.user.id, 'online');
         const user = {
             id: req.user.id,
             fullName: req.user.fullName,
@@ -236,6 +229,7 @@ exports.change = change;
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.user) {
         (0, users_socket_1.default)(req.user);
+        (0, updateStatusUser_1.default)(req.user.id, 'offline');
         yield user_model_1.default.updateOne({
             _id: req.user.id
         }, {

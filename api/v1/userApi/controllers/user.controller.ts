@@ -3,8 +3,8 @@ import md5 from "md5";
 import User from "../models/user.model";
 import { generateRandomNumber, generateRandomString } from "../../../../helpers/generate";
 import sendMail from "../../../../helpers/sendMail";
+import updateStatus from '../../../../helpers/updateStatusUser';
 import ForgotPassword from "../models/forgotPassword.model";
-import { Socket } from "socket.io";
 import usersSocket from "../socket/client/users.socket";
 
 const io = (global as any)._io;
@@ -39,11 +39,7 @@ export const login = async (req: Request | any, res: Response): Promise<void> =>
         //Socket io
         usersSocket(req.user)
         //Socket io
-        await User.updateOne({
-            _id: req.user.id
-        },{
-            statusOnline: 'online'
-        })
+        updateStatus(req.user.id, 'online')
 
         res.json({
             code: 200,
@@ -96,11 +92,7 @@ export const detail = async (req: Request | any, res: Response): Promise<void> =
         //Socket io
         usersSocket(req.user)
         //Socket io
-        await User.updateOne({
-            _id: req.user.id
-        },{
-            statusOnline: 'online'
-        })
+        updateStatus(req.user.id, 'online')
 
         const user = {
             id: req.user.id,
@@ -234,6 +226,8 @@ export const logout = async (req: Request | any, res: Response): Promise<void> =
         //Socket io
         usersSocket(req.user)
         //Socket io
+        updateStatus(req.user.id, 'offline')
+
         await User.updateOne({
             _id: req.user.id
         },{

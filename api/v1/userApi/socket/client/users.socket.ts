@@ -1,16 +1,18 @@
 import { Socket } from "socket.io"
-import { handleAcceptFriend, handleAddFriend, handleCancelRequest, handleDeleteFriend, handleDenyFriend } from "./function.socket";
+import { handleAcceptFriend, handleAddFriend, handleCancelRequest, handleDeleteFriend, handleDenyFriend } from "./function.socket"; 
+import updateStatus from '../../../../../helpers/updateStatusUser';
+import User from '../../models/user.model'
 
 const usersSocket = async (user: any): Promise<void> => {
     const io = (global as any)._io;
-    io.once('connection', (socket: Socket) => {
+    io.once('connection', async (socket: Socket) => {
         const { id } = user
         try {
-            socket.broadcast.emit('SERVER_RETURN_USER_STATUS_ONLINE', {
+            updateStatus(id, 'online')
+            socket.emit('SERVER_RETURN_USER_STATUS_ONLINE', {
                 userId: id,
                 status: 'online'
              });
-            console.log("SERVER_RETURN_USER_STATUS_ONLINE online", socket.id)
             //CLIENT_ADD_FRIEND
             socket.removeAllListeners("CLIENT_ADD_FRIEND");
             socket.on('CLIENT_ADD_FRIEND', async (userId) => {
@@ -50,8 +52,8 @@ const usersSocket = async (user: any): Promise<void> => {
         }
 
         socket.on("disconnect", () => {
-            console.log("SERVER_RETURN_USER_STATUS_ONLINE offline", socket.id)
-            socket.broadcast.emit('SERVER_RETURN_USER_STATUS_ONLINE', {
+            updateStatus(id, 'offline')
+            socket.emit('SERVER_RETURN_USER_STATUS_ONLINE', {
                 userId: id,
                 status: 'offline'
              });

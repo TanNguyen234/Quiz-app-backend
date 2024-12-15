@@ -8,18 +8,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const function_socket_1 = require("./function.socket");
+const updateStatusUser_1 = __importDefault(require("../../../../../helpers/updateStatusUser"));
 const usersSocket = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const io = global._io;
-    io.once('connection', (socket) => {
+    io.once('connection', (socket) => __awaiter(void 0, void 0, void 0, function* () {
         const { id } = user;
         try {
-            socket.broadcast.emit('SERVER_RETURN_USER_STATUS_ONLINE', {
+            (0, updateStatusUser_1.default)(id, 'online');
+            socket.emit('SERVER_RETURN_USER_STATUS_ONLINE', {
                 userId: id,
                 status: 'online'
             });
-            console.log("SERVER_RETURN_USER_STATUS_ONLINE online", socket.id);
             socket.removeAllListeners("CLIENT_ADD_FRIEND");
             socket.on('CLIENT_ADD_FRIEND', (userId) => __awaiter(void 0, void 0, void 0, function* () {
                 console.log('CLIENT_ADD_FRIEND');
@@ -50,8 +54,8 @@ const usersSocket = (user) => __awaiter(void 0, void 0, void 0, function* () {
             console.log("error: ", error);
         }
         socket.on("disconnect", () => {
-            console.log("SERVER_RETURN_USER_STATUS_ONLINE offline", socket.id);
-            socket.broadcast.emit('SERVER_RETURN_USER_STATUS_ONLINE', {
+            (0, updateStatusUser_1.default)(id, 'offline');
+            socket.emit('SERVER_RETURN_USER_STATUS_ONLINE', {
                 userId: id,
                 status: 'offline'
             });
@@ -64,6 +68,6 @@ const usersSocket = (user) => __awaiter(void 0, void 0, void 0, function* () {
         socket.on("connect_error", (err) => {
             console.error("Connection error:", err);
         });
-    });
+    }));
 });
 exports.default = usersSocket;
