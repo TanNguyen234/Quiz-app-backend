@@ -119,6 +119,10 @@ const handleAcceptFriend = (id, userId) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.handleAcceptFriend = handleAcceptFriend;
 const handleDeleteFriend = (id, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    yield room_chat_model_1.default.deleteMany({
+        typeRoom: "friend",
+        "users.user_id": { $all: [id, userId] }
+    });
     yield user_model_1.default.updateOne({
         _id: userId,
     }, {

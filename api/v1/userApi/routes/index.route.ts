@@ -7,6 +7,7 @@ import { usersRoutes } from './users.route';
 
 import * as middleware from '../middlewares/auth.middleware';
 import { chatRoutes } from './chat.route';
+import { roomChatRoutes } from './room-chat.route'
 
 const userApiRoute = (app: Express): void =>{
     const version: String = '/api/v1';
@@ -20,6 +21,8 @@ const userApiRoute = (app: Express): void =>{
     app.use(version + '/users', usersRoutes)
 
     app.use(version + '/chat', middleware.Auth , chatRoutes)
+
+    app.use(version + '/rooms', middleware.Auth , roomChatRoutes)
 }
 
 export default userApiRoute;

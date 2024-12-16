@@ -1,5 +1,6 @@
 import User from "../../models/user.model";
 import RoomChat from '../../models/room-chat.model'
+import Chat from '../../models/chat.model'
 
 export const handleAddFriend = async (
   id: string,
@@ -155,6 +156,14 @@ export const handleDeleteFriend = async (
   id: string,
   userId: string
 ): Promise<void> => {
+  await RoomChat.deleteMany({
+    typeRoom: "friend",
+    "users.user_id": { $all: [id, userId] }
+  })
+  // await RoomChat.deleteMany({
+  //   typeRoom: "friend",
+  //   "users.user_id": { $all: [id, userId] }
+  // })
   //Xóa id của B trong friendList của A
   await User.updateOne(
     {
