@@ -7,11 +7,13 @@ interface content {
     message: string;
     file: any;
     files: any;
+    room: string
 }
 interface Chat {
     user_id: string,
     content?: string,
-    images?: String[]
+    images?: String[],
+    room_chat_id: string
 }
 export const handleSendMessage = async (
   id: string,
@@ -19,7 +21,8 @@ export const handleSendMessage = async (
   content: content
 ) => {
     let saveObj: Chat = {
-        user_id: id
+        user_id: id,
+        room_chat_id: content.room
     }
 
     if(content.files) {

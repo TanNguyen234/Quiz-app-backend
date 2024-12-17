@@ -12,36 +12,71 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.index = void 0;
+exports.check = exports.index = void 0;
 const room_chat_model_1 = __importDefault(require("../models/room-chat.model"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
     const { id } = req.user;
     const rooms = yield room_chat_model_1.default.find({
         "users.user_id": id,
-        deleted: false
+        deleted: false,
     });
-    for (const room of rooms) {
-        if (room.typeRoom === "friend" && room.users.length === 2) {
-            if (room.users[0].user_id !== id) {
-                room.info = yield user_model_1.default.findOne({ _id: room.users[0].user_id }).select('fullName avatar');
+    const newRooms = [];
+    for (var room of rooms) {
+        if (room.typeRoom === "friend") {
+            const userOther = ((_a = room.users[0]) === null || _a === void 0 ? void 0 : _a.user_id) !== id
+                ? (_b = room.users[0]) === null || _b === void 0 ? void 0 : _b.user_id
+                : (_c = room.users[1]) === null || _c === void 0 ? void 0 : _c.user_id;
+            if (userOther) {
+                const user = yield user_model_1.default.findOne({ _id: userOther }).select("fullName avatar");
+                newRooms.push(Object.assign(Object.assign({}, room), { info: user }));
             }
-            else if (room.users[1].user_id !== id) {
-                room.info = yield user_model_1.default.findOne({ _id: room.users[1].user_id }).select('fullName avatar');
-            }
-            console.log(room);
         }
     }
+    console.log(newRooms);
     if (!id || rooms.length === 0) {
         res.json({
             code: 400,
-            message: "No Data"
+            message: "No Data",
         });
         return;
     }
     res.json({
         code: 200,
-        data: rooms
+        data: newRooms,
     });
 });
 exports.index = index;
+const check = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    if (!id) {
+        res.json({
+            code: 400,
+            message: "Invalid ID",
+        });
+        return;
+    }
+    try {
+        const room = yield room_chat_model_1.default.findOne({
+            _id: id,
+            deleted: false,
+        });
+        if (!room) {
+            throw new Error("Could not find room");
+        }
+        else {
+            res.json({
+                code: 200,
+                data: room,
+            });
+        }
+    }
+    catch (error) {
+        res.json({
+            code: 400,
+            message: "Invalid ID",
+        });
+    }
+});
+exports.check = check;

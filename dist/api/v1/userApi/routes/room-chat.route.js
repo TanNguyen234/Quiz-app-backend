@@ -28,4 +28,5 @@ const express_1 = require("express");
 const router = (0, express_1.Router)();
 const controller = __importStar(require("../controllers/room-chat.controller"));
 router.get('/', controller.index);
+router.get('/:id', controller.check);
 exports.roomChatRoutes = router;

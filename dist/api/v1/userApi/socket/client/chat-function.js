@@ -41,7 +41,8 @@ const uploadToCloudinary = __importStar(require("../../../../../helpers/uploadTo
 const io = global._io;
 const handleSendMessage = (id, fullName, content) => __awaiter(void 0, void 0, void 0, function* () {
     let saveObj = {
-        user_id: id
+        user_id: id,
+        room_chat_id: content.room
     };
     if (content.files) {
         let images = [];

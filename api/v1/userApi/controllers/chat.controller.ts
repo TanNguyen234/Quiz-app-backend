@@ -17,7 +17,7 @@ interface Chat {
     fullName?: string
 }
 
-//[GET] /chat/:room_chat_id
+//[GET] /chat/:roomChatId
 export const index = async (req: CustomRequest, res: Response): Promise<void> => {
     const user = req.user as any
     const roomChatId = req.params.roomChatId
