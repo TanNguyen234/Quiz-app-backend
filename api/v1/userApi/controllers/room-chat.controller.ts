@@ -50,7 +50,6 @@ export const index = async (
       }
     }
   }
-  console.log(newRooms);
 
   if (!id || rooms.length === 0) {
     res.json({

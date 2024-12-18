@@ -10,18 +10,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chat_function_1 = require("./chat-function");
-const chatSocket = (user) => __awaiter(void 0, void 0, void 0, function* () {
+const chatSocket = (user, roomChatId) => __awaiter(void 0, void 0, void 0, function* () {
     const io = global._io;
+    const { id, fullName } = user;
     io.once("connection", (socket) => {
-        const { id, fullName } = user;
+        socket.join(roomChatId);
         socket.removeAllListeners("CLIENT_SEND_MESSAGE");
         socket.on("CLIENT_SEND_MESSAGE", (content) => __awaiter(void 0, void 0, void 0, function* () {
-            const message = yield (0, chat_function_1.handleSendMessage)(id, fullName, content);
-            io.emit("SERVER_RETURN_MESSAGE", message);
+            const message = yield (0, chat_function_1.handleSendMessage)(id, fullName, content, roomChatId);
+            io.to(roomChatId).emit("SERVER_RETURN_MESSAGE", message);
         }));
         socket.removeAllListeners("CLIENT_SEND_TYPING");
         socket.on("CLIENT_SEND_TYPING", (type) => {
-            socket.broadcast.emit("SERVER_RETURN_TYPING", {
+            socket.broadcast.to(roomChatId).emit("SERVER_RETURN_TYPING", {
                 id,
                 fullName,
                 type

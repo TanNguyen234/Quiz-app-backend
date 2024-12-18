@@ -19,22 +19,18 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const users_socket_1 = __importDefault(require("../socket/client/users.socket"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
+    const friendList = req.user.friendList.map((item) => item.user_id);
+    const keyword = req.query.keyword;
     (0, users_socket_1.default)(user);
-    if (req.query.keyword) {
-        const keyword = req.query.keyword;
-        const slug = (0, convertToSlug_1.convertToSlug)(keyword);
-        const slugRegex = new RegExp(slug, 'i');
+    if (keyword && typeof keyword === 'string') {
         try {
+            const slug = (0, convertToSlug_1.convertToSlug)(keyword);
+            const slugRegex = new RegExp(slug, 'i');
             const searchConditions = {
                 $or: [
                     { fullName: slugRegex },
                     { email: slugRegex },
                     { slug: slugRegex },
-                ],
-                $and: [
-                    { _id: { $ne: user.id } },
-                    { _id: { $nin: user.requestFriend } },
-                    { _id: { $nin: user.acceptFriend } },
                 ],
                 deleted: false,
                 status: "active",
@@ -43,6 +39,7 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 searchConditions.$or.push({ _id: slug });
             }
             const users = yield user_model_1.default.find(searchConditions).select("-email -password -token");
+            console.log(users);
             res.json({
                 code: 200,
                 data: users
@@ -63,10 +60,12 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     { _id: { $ne: user.id } },
                     { _id: { $nin: user.requestFriends } },
                     { _id: { $nin: user.acceptFriends } },
+                    { _id: { $nin: friendList } }
                 ],
                 deleted: false,
                 status: "active",
             }).select("-email -password -token");
+            console.log('not key', users);
             res.json({
                 code: 200,
                 data: users

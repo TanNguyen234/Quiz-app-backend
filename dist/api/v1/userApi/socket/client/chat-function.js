@@ -39,10 +39,10 @@ exports.handleSendMessage = void 0;
 const chat_model_1 = __importDefault(require("../../models/chat.model"));
 const uploadToCloudinary = __importStar(require("../../../../../helpers/uploadToCloudinary"));
 const io = global._io;
-const handleSendMessage = (id, fullName, content) => __awaiter(void 0, void 0, void 0, function* () {
+const handleSendMessage = (id, fullName, content, roomChatId) => __awaiter(void 0, void 0, void 0, function* () {
     let saveObj = {
         user_id: id,
-        room_chat_id: content.room
+        room_chat_id: roomChatId
     };
     if (content.files) {
         let images = [];

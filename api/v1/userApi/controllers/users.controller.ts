@@ -14,25 +14,20 @@ interface CustomRequest extends Request {
 //[GET] /api/v1/users/not-friend
 export const index = async (req: CustomRequest, res: Response): Promise<void> => {
     const user = req.user as any;
+    const friendList = (req.user as any).friendList.map((item: any) => item.user_id)
+    const keyword = req.query.keyword as string;
     //Socket
     usersSocket(user)
     //End Socket
-    if(req.query.keyword) {
-        const keyword = req.query.keyword as string;
-        const slug = convertToSlug(keyword);
-        const slugRegex = new RegExp(slug, 'i');
-
+    if(keyword && typeof keyword === 'string') {
         try {
+            const slug = convertToSlug(keyword);
+            const slugRegex = new RegExp(slug, 'i');
             const searchConditions: any = {
                 $or: [
                     { fullName: slugRegex },
                     { email: slugRegex },
                     { slug: slugRegex },
-                ],
-                $and: [
-                    { _id: { $ne: user.id } },
-                    { _id: { $nin: user.requestFriend } },
-                    { _id: { $nin: user.acceptFriend } },
                 ],
                 deleted: false,
                 status: "active",
@@ -43,6 +38,7 @@ export const index = async (req: CustomRequest, res: Response): Promise<void> =>
                 searchConditions.$or.push({ _id: slug });
             }
             const users = await User.find(searchConditions).select("-email -password -token")
+            console.log(users)
     
             res.json({
                 code: 200,
@@ -62,10 +58,12 @@ export const index = async (req: CustomRequest, res: Response): Promise<void> =>
                     { _id: { $ne: user.id } },
                     { _id: { $nin: user.requestFriends } },
                     { _id: { $nin: user.acceptFriends } },
+                    { _id: { $nin: friendList } }
                 ],
                 deleted: false,
                 status: "active",
             }).select("-email -password -token")
+            console.log('not key', users)
 
             res.json({
                 code: 200,

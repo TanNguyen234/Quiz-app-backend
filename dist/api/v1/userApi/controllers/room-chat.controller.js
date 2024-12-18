@@ -34,7 +34,6 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
         }
     }
-    console.log(newRooms);
     if (!id || rooms.length === 0) {
         res.json({
             code: 400,

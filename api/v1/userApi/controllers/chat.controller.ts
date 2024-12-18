@@ -22,7 +22,7 @@ export const index = async (req: CustomRequest, res: Response): Promise<void> =>
     const user = req.user as any
     const roomChatId = req.params.roomChatId
     //Soket
-    chatSocket(user)
+    chatSocket(user, roomChatId)
     //End Socket
     try {
         const chats = await Chat.find({
