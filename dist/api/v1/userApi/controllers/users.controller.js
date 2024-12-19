@@ -27,6 +27,7 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const slug = (0, convertToSlug_1.convertToSlug)(keyword);
             const slugRegex = new RegExp(slug, 'i');
             const searchConditions = {
+                _id: { $ne: user.id },
                 $or: [
                     { fullName: slugRegex },
                     { email: slugRegex },

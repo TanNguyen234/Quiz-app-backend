@@ -15,19 +15,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.result = exports.index = void 0;
 const answer_model_1 = __importDefault(require("../models/answer.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const answers = new answer_model_1.default(req.body);
-    answers.save();
-    if (!answers) {
+    try {
+        const answers = new answer_model_1.default(req.body);
+        yield answers.save();
+        if (!answers)
+            throw new Error(`Error saving`);
+        res.json({
+            code: 200,
+            data: answers
+        });
+        return;
+    }
+    catch (error) {
+        console.log(error);
         res.json({
             code: 500,
             message: "Error saving answer"
         });
         return;
     }
-    res.json({
-        code: 200,
-        data: answers
-    });
 });
 exports.index = index;
 const result = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -52,10 +58,12 @@ const result = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
     }
     else {
+        const userId = req.user.id;
         const data = yield answer_model_1.default.find({
+            userId: userId,
             status: 'active',
             deleted: false
-        });
+        }).select('createdAt topicId answers');
         res.json({
             code: 200,
             data: data

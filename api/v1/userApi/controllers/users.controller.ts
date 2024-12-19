@@ -24,6 +24,7 @@ export const index = async (req: CustomRequest, res: Response): Promise<void> =>
             const slug = convertToSlug(keyword);
             const slugRegex = new RegExp(slug, 'i');
             const searchConditions: any = {
+                _id: { $ne: user.id },
                 $or: [
                     { fullName: slugRegex },
                     { email: slugRegex },

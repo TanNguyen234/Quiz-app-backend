@@ -28,6 +28,7 @@ const express_1 = require("express");
 const router = (0, express_1.Router)();
 const controller = __importStar(require("../controllers/answer.controller"));
 const validate = __importStar(require("../validates/answer.validate"));
+const middleware = __importStar(require("../middlewares/auth.middleware"));
 router.post('/submit', validate.answer, controller.index);
-router.get('/result', controller.result);
+router.get('/result', middleware.Auth, controller.result);
 exports.answerRoutes = router;
