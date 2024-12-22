@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = exports.change = exports.checkOTP = exports.otp = exports.detail = exports.register = exports.login = exports.index = void 0;
+exports.changeInfo = exports.logout = exports.change = exports.checkOTP = exports.otp = exports.detail = exports.register = exports.login = exports.index = void 0;
 const md5_1 = __importDefault(require("md5"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const generate_1 = require("../../../../helpers/generate");
@@ -20,6 +20,7 @@ const sendMail_1 = __importDefault(require("../../../../helpers/sendMail"));
 const updateStatusUser_1 = __importDefault(require("../../../../helpers/updateStatusUser"));
 const forgotPassword_model_1 = __importDefault(require("../models/forgotPassword.model"));
 const users_socket_1 = __importDefault(require("../socket/client/users.socket"));
+const uploadToCloudinary_1 = require("../../../../helpers/uploadToCloudinary");
 const io = global._io;
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.query.keyword) {
@@ -103,7 +104,9 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             id: req.user.id,
             fullName: req.user.fullName,
             email: req.user.email,
-            token: req.user.token
+            token: req.user.token,
+            avatar: req.user.avatar,
+            createdAt: req.user.createdAt,
         };
         res.json({
             code: 200,
@@ -238,3 +241,56 @@ const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.logout = logout;
+const changeInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const saveObj = {};
+    const { fullName, email } = req.body;
+    const id = req.user.id;
+    var mimetype = "", buffer = Buffer.from("");
+    if (req.file) {
+        mimetype = req.file.mimetype;
+        buffer = req.file.buffer;
+    }
+    if (!mimetype && !buffer && !fullName && !email) {
+        res.json({
+            code: 400,
+            message: "Invalid information"
+        });
+        return;
+    }
+    if (mimetype && buffer) {
+        const img = yield (0, uploadToCloudinary_1.uploadToCloudinary)(buffer, mimetype);
+        saveObj["avatar"] = img;
+    }
+    if (fullName) {
+        saveObj["fullName"] = fullName;
+    }
+    if (email) {
+        const existEmail = yield user_model_1.default.findOne({
+            email: email,
+            _id: { $ne: id }
+        });
+        if (existEmail) {
+            res.json({
+                code: 400,
+                message: "Email is exist"
+            });
+            return;
+        }
+        saveObj["email"] = email;
+    }
+    try {
+        yield user_model_1.default.updateOne({
+            _id: id
+        }, saveObj);
+        res.json({
+            code: 200
+        });
+    }
+    catch (error) {
+        res.json({
+            code: 400,
+            message: "Error"
+        });
+    }
+});
+exports.changeInfo = changeInfo;

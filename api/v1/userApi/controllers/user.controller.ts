@@ -6,6 +6,7 @@ import sendMail from "../../../../helpers/sendMail";
 import updateStatus from '../../../../helpers/updateStatusUser';
 import ForgotPassword from "../models/forgotPassword.model";
 import usersSocket from "../socket/client/users.socket";
+import { uploadToCloudinary } from "../../../../helpers/uploadToCloudinary";
 
 const io = (global as any)._io;
 
@@ -98,7 +99,9 @@ export const detail = async (req: Request | any, res: Response): Promise<void> =
             id: req.user.id,
             fullName: req.user.fullName,
             email: req.user.email,
-            token: req.user.token
+            token: req.user.token,
+            avatar: req.user.avatar,
+            createdAt: req.user.createdAt,
         }
 
         res.json({
@@ -232,6 +235,64 @@ export const logout = async (req: Request | any, res: Response): Promise<void> =
             _id: req.user.id
         },{
             statusOnline: 'offline'
+        })
+    }
+}
+interface UserInter {
+    avatar?: string
+    fullName?: string
+    email?: string
+}
+//[PATCH] /api/v1/user/changeInfo
+export const changeInfo = async (req: Request | any, res: Response): Promise<void> => {
+    const saveObj: UserInter = {}
+    const { fullName, email } = req.body
+    const id: string = req.user.id
+    var mimetype: string = "", buffer: Buffer = Buffer.from("")
+
+    if(req.file) {
+        mimetype = req.file.mimetype
+        buffer = req.file.buffer
+    }
+    if(!mimetype && !buffer && !fullName && !email) {
+        res.json({
+            code: 400,
+            message: "Invalid information"
+        })
+        return;
+    }
+    if (mimetype && buffer) {
+        const img: string = await uploadToCloudinary(buffer, mimetype)
+        saveObj["avatar"] = img
+    } 
+    if(fullName) {
+        saveObj["fullName"] = fullName
+    }
+    if(email) {
+        const existEmail = await User.findOne({
+            email: email,
+            _id: { $ne: id }
+        })
+        if(existEmail) {
+            res.json({
+                code: 400,
+                message: "Email is exist"
+            })
+            return;
+        }
+        saveObj["email"] = email
+    }
+    try {
+        await User.updateOne({
+            _id: id
+        }, saveObj)
+        res.json({
+            code: 200
+        })
+    } catch (error) {
+        res.json({
+            code: 400,
+            message: "Error"
         })
     }
 }

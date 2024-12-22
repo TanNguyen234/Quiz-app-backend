@@ -1,7 +1,6 @@
 import { Socket } from "socket.io"
 import { handleAcceptFriend, handleAddFriend, handleCancelRequest, handleDeleteFriend, handleDenyFriend } from "./function.socket"; 
 import updateStatus from '../../../../../helpers/updateStatusUser';
-import User from '../../models/user.model'
 
 const usersSocket = async (user: any): Promise<void> => {
     const io = (global as any)._io;

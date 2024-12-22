@@ -25,10 +25,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRoutes = void 0;
 const express_1 = require("express");
+const multer = require('multer');
 const router = (0, express_1.Router)();
 const controller = __importStar(require("../controllers/user.controller"));
 const validate = __importStar(require("../validates/user.validate"));
 const middleware = __importStar(require("../middlewares/auth.middleware"));
+const upload = multer();
 router.post('/password/otp', controller.otp);
 router.post('/password/checkOTP', controller.checkOTP);
 router.patch('/password/change', controller.change);
@@ -36,4 +38,5 @@ router.get('/detail', middleware.Auth, controller.detail);
 router.post('/login', validate.login, controller.login);
 router.post('/register', validate.register, controller.register);
 router.get('/logout', middleware.Auth, controller.logout);
+router.post('/changeInfo', upload.single('avatar'), middleware.Auth, controller.changeInfo);
 exports.userRoutes = router;
